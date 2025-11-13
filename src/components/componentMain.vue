@@ -10,9 +10,9 @@
     </div>
     <h2 class="text-center p-4 font-extrabold text-[30px]">Por Que Usar o QrSafe?</h2>
     <div class="grid grid-cols-1 gap-4">
-        <CardMain :imagem="sos" texto="Primeiro responders podem escanear seu QR Code e acessar informações críticas em segundos"/>
-        <CardMain :imagem="data" texto="Informações médicas, alergias, contatos de emergência - tudo em um único QR Code"/>
-        <CardMain :imagem="padlock" texto="Seus dados ficam sob seu controle. Compartilhe apenas quando necessário"/>
+        <CardMain :imagem="sos" titulo="Acesso Imediato" texto="Primeiro responders podem escanear seu QR Code e acessar informações críticas em segundos"/>
+        <CardMain :imagem="data" titulo="Dados Completos" texto="Informações médicas, alergias, contatos de emergência - tudo em um único QR Code"/>
+        <CardMain :imagem="padlock" titulo="Privado e seguro" texto="Seus dados ficam sob seu controle. Compartilhe apenas quando necessário"/>
     </div>
     <h2 class="text-center p-4 font-extrabold text-[30px]">Como Funciona?</h2>
     <div>
