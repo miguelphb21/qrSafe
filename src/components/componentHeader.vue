@@ -3,10 +3,6 @@
     <div class="navbar bg-[#000] text-neutral-content">
       <button class="navbar-start ml-6 cursor-pointer text-[20px] font-extrabold">QrSafe <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="">
 </button>
-
-
-
-
       <div class="md:hidden navbar-end sm:drawer drawer-end mr-6">
         <input id="my-drawer-5" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content">
@@ -22,6 +18,8 @@
           <label for="my-drawer-5" aria-label="close sidebar" class="drawer-overlay"></label>
           <ul class="menu bg-base-200 text-[#000] min-h-full w-80 p-4">
             <!-- Sidebar content here -->
+            <label for="my-drawer-5" aria-label="close sidebar" class="drawer-overlay"><li>fechar</li></label>
+
             <li><a>Cadastro</a></li>
             <li><a>Sobre</a></li>
           </ul>
