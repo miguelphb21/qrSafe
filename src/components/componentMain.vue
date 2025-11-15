@@ -21,6 +21,7 @@
       <CardTutorial numero="3" infoTitle="Imprima ou compartilhe" infoText="Um código único é gerado automaticamente com todos os seus dados"/>
       <CardTutorial numero="4" infoTitle="Proteja-se em emergências" infoText="Em situações de risco, qualquer pessoa pode escanear e obter suas informações críticas"/>
     </div>
+    <ChamadaParaInstalação/>
   </main>
 </template>
 
@@ -30,5 +31,6 @@
   import padlock from '../assets/images/padlock_image.svg'
   import data from '../assets/images/data_image.svg'
 import CardTutorial from './cardTutorial.vue';
+import ChamadaParaInstalação from './chamadaParaInstalação.vue';
 
 </script>
