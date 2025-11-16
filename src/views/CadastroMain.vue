@@ -1,8 +1,7 @@
 <script setup>
-import ComponentHeader from './componentHeader.vue';
+
 </script>
 <template>
-  <ComponentHeader></ComponentHeader>
   <main class="bg-[]">
     <div class="border">
       <div class=" text-center text-4xl mt-6 mr-6 ml-6 ">
