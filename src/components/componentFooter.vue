@@ -22,7 +22,7 @@ import { RouterLink } from 'vue-router';
           <ul>
             <li>Home</li>
             <RouterLink to="/sobre"><li>Sobre</li></RouterLink>
-            <li>Cadastre-se</li>
+            <RouterLink to="/cadastro"><li>Cadastre-se</li></RouterLink>
           </ul>
         </nav>
       </div>

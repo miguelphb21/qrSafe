@@ -25,7 +25,8 @@
             <label for="my-drawer-5" aria-label="close sidebar" class="drawer-overlay"><li>fechar</li></label>
 
             <RouterLink to="/cadastro"><li><a>Cadastro</a></li></RouterLink>
-            <li><a>Sobre</a></li>
+            <RouterLink to="/sobre"><li><a>Sobre</a></li></RouterLink>
+
           </ul>
         </div>
       </div>
