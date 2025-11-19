@@ -5,7 +5,8 @@
       <p class="text-center mx-5 text-[20px] font-ligth">Sua segurança em primeiro lugar. Crie um cartão de emergência
         com QR Code para situações de risco</p>
       <div class="flex justify-center py-5">
-        <button class="bg-[#fff] text-[#000] p-3 border rounded-lg font-black">Criar Meu Qr Agora</button>
+        <RouterLink to="/cadastro"><button class="bg-[#fff] text-[#000] p-3 border rounded-lg font-black cursor-pointer">Criar Meu Qr Agora</button></RouterLink>
+
       </div>
     </div>
     <h2 class="text-center p-4 font-extrabold text-[30px]">Por Que Usar o QrSafe?</h2>
@@ -21,14 +22,16 @@
       <CardTutorial numero="3" infoTitle="Imprima ou compartilhe" infoText="Um código único é gerado automaticamente com todos os seus dados"/>
       <CardTutorial numero="4" infoTitle="Proteja-se em emergências" infoText="Em situações de risco, qualquer pessoa pode escanear e obter suas informações críticas"/>
     </div>
+    <ChamadaParaInstalação texto=""/>
   </main>
 </template>
 
 <script setup>
-  import CardMain from './CardMain.vue';
+  import CardMain from '../components/CardMain.vue';
   import sos from '../assets/images/sos_image.svg'
   import padlock from '../assets/images/padlock_image.svg'
   import data from '../assets/images/data_image.svg'
-import CardTutorial from './cardTutorial.vue';
+import CardTutorial from '../components/cardTutorial.vue';
+import ChamadaParaInstalação from '../components/chamadaParaInstalação.vue';
 
 </script>

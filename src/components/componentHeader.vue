@@ -1,8 +1,12 @@
 <template>
   <header>
     <div class="navbar bg-[#000] text-neutral-content">
-      <button class="navbar-start ml-6 cursor-pointer text-[20px] font-extrabold">QrSafe <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="">
-</button>
+      <div class="navbar-start ml-6 cursor-pointer text-[20px] font-extrabold" to="/cadastro">
+        <RouterLink to="/">
+          <button class="navbar-start ml-6 cursor-pointer text-[20px] font-extrabold">QrSafe <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="">
+        </button>
+        </RouterLink>
+      </div>
       <div class="md:hidden navbar-end sm:drawer drawer-end mr-6">
         <input id="my-drawer-5" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content">
@@ -20,15 +24,17 @@
             <!-- Sidebar content here -->
             <label for="my-drawer-5" aria-label="close sidebar" class="drawer-overlay"><li>fechar</li></label>
 
-            <li><a>Cadastro</a></li>
-            <li><a>Sobre</a></li>
+            <RouterLink to="/cadastro"><li><a>Cadastro</a></li></RouterLink>
+            <RouterLink to="/sobre"><li><a>Sobre</a></li></RouterLink>
+
           </ul>
         </div>
       </div>
       <div class="navbar-end hidden md:flex">
         <ul class="menu menu-horizontal px-1">
-          <li><a>Cadastro</a></li>
-          <li><a>Sobre</a></li>
+          <RouterLink to="/cadastro"><li><a>Cadastro</a></li></RouterLink>
+          <RouterLink to="/sobre"><li><a>Sobre</a></li></RouterLink>
+
         </ul>
       </div>
     </div>
