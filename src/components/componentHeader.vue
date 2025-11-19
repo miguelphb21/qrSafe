@@ -32,8 +32,8 @@
       <div class="navbar-end hidden md:flex">
         <ul class="menu menu-horizontal px-1">
           <RouterLink to="/cadastro"><li><a>Cadastro</a></li></RouterLink>
+          <RouterLink to="/sobre"><li><a>Sobre</a></li></RouterLink>
 
-          <li><a>Sobre</a></li>
         </ul>
       </div>
     </div>

@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import { RouterLink } from 'vue-router';
+
+</script>
+
 <template>
   <footer class="bg-[#000]">
     <div class="text-[#fff] m-auto w-85 pb-10 rounded-lg shadow-lg max-w-sm">
@@ -16,7 +21,7 @@
         <nav>
           <ul>
             <li>Home</li>
-            <li>Sobre</li>
+            <RouterLink to="/sobre"><li>Sobre</li></RouterLink>
             <li>Cadastre-se</li>
           </ul>
         </nav>

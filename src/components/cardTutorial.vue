@@ -1,6 +1,7 @@
 <script setup>
   defineProps(["numero", "infoTitle", "infoText"])
 </script>
+
 <template>
   <div class="flex w-85 m-auto p-4.75 pb-10 rounded-lg max-w-sm mb-4">
     <div class="p-2 bg-[#000] border h-[50%] text-[#fff] rounded-lg "><span class="p-[10px] font-black">{{ numero }}</span></div>
