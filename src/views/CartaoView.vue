@@ -41,24 +41,29 @@ const montarUrlQrCode = () => {
 };
 
 onMounted(() => {
+  // 1. Recupera quem é o usuário logado
   const dadosUser = localStorage.getItem('dadosUsuario');
 
   if (dadosUser) {
     const userObj = JSON.parse(dadosUser);
-    emailUsuario.value = userObj.email;
+    emailUsuario.value = userObj.email; // Guarda o email para a chave única
 
     if(userObj.nome) nomeUsuario.value = userObj.nome;
     else if(userObj.email) nomeUsuario.value = userObj.email.split('@')[0];
 
-    // Recupera dados salvos
+    // 2. Tenta carregar dados DESTE usuário específico
     const dadosSalvos = localStorage.getItem(`cartao_${userObj.email}`);
 
     if (dadosSalvos) {
       Object.assign(form, JSON.parse(dadosSalvos));
+
+      // --- MUDANÇA PRINCIPAL AQUI ---
+      // Se já tem dados, gera o QR Code e MANDA DIRETO PARA O CARD
       valorQrCode.value = montarUrlQrCode();
       etapa.value = 'card';
     }
   } else {
+    // Se não tiver logado, manda pro login
     triggerToast("Você precisa estar logado.", 'error');
     setTimeout(() => router.push('/login'), 1500);
   }
@@ -75,9 +80,14 @@ const gerarCartao = () => {
       return;
   }
 
+  // 1. Salva os dados
   localStorage.setItem(`cartao_${emailUsuario.value}`, JSON.stringify(form));
-  valorQrCode.value = montarUrlQrCode();
 
+  // 2. Gera a URL
+  valorQrCode.value = montarUrlQrCode();
+  console.log("URL Gerada:", valorQrCode.value);
+
+  // 3. Notifica e MUDA A TELA
   triggerToast("Cartão gerado e salvo com sucesso!", 'success');
   etapa.value = 'card';
 };
@@ -85,11 +95,6 @@ const gerarCartao = () => {
 const verPreviaPublica = () => {
     if (!valorQrCode.value) return;
     window.open(valorQrCode.value, '_blank');
-};
-
-// --- FUNÇÃO PARA VOLTAR AO INÍCIO ---
-const irParaInicio = () => {
-    router.push('/');
 };
 </script>
 
@@ -105,15 +110,7 @@ const irParaInicio = () => {
 
   <!-- ETAPA 1: FORMULÁRIO -->
   <main v-if="etapa === 'form'" class="min-h-screen bg-[#EEEEEE] py-10 px-4 flex justify-center relative">
-
-    <!-- BOTÃO VOLTAR (No topo esquerdo) -->
-    <div class="absolute top-4 left-4 z-20">
-        <button @click="irParaInicio" class="bg-white px-3 py-2 rounded-full shadow text-gray-700 hover:text-black hover:bg-gray-50 transition-colors flex items-center gap-2 font-bold text-sm">
-            <span>⬅ Início</span>
-        </button>
-    </div>
-
-    <div class="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden mt-8">
+    <div class="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
 
       <div class="text-center mt-6 px-6">
         <h1 class="text-3xl font-bold leading-tight">Seu Cartão de Emergência</h1>
@@ -155,15 +152,9 @@ const irParaInicio = () => {
   <!-- ETAPA 2: CARD COM QR CODE -->
   <main v-else-if="etapa === 'card'" class="min-h-screen bg-[#EEEEEE] flex flex-col items-center justify-center px-4 relative">
 
-    <!-- BOTÃO VOLTAR (No topo esquerdo também aqui) -->
-    <div class="absolute top-4 left-4 z-20">
-        <button @click="irParaInicio" class="bg-white px-3 py-2 rounded-full shadow text-gray-700 hover:text-black hover:bg-gray-50 transition-colors flex items-center gap-2 font-bold text-sm">
-            <span>⬅ Início</span>
-        </button>
-    </div>
-
     <h2 class="text-2xl font-bold mb-6 text-gray-800">Seu Cartão Digital</h2>
 
+    <!-- Card Visual -->
     <div class="w-full max-w-sm bg-gradient-to-r from-gray-900 to-black text-white rounded-xl shadow-2xl p-6 relative overflow-hidden">
       <div class="flex justify-between items-start z-10 relative">
         <div>
@@ -171,6 +162,7 @@ const irParaInicio = () => {
           <p class="text-sm text-gray-300 mt-1">{{ nomeUsuario }}</p>
         </div>
 
+        <!-- QR CODE CLICÁVEL -->
         <div
             @click="verPreviaPublica"
             class="bg-white p-2 rounded cursor-pointer hover:scale-105 transition-transform shadow-lg group"

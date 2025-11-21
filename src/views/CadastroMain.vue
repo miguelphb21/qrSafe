@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -7,27 +7,42 @@ const nome = ref('');
 const email = ref('');
 const password = ref('');
 
+// --- SISTEMA DE TOAST (NOTIFICAÇÃO) ---
+const toast = reactive({
+  show: false,
+  message: '',
+  type: 'success' // 'success' ou 'error'
+});
+
+const triggerToast = (msg, type = 'success') => {
+  toast.message = msg;
+  toast.type = type;
+  toast.show = true;
+  // Esconde depois de 3 segundos
+  setTimeout(() => {
+    toast.show = false;
+  }, 3000);
+};
+
 const handleRegister = () => {
   if (!nome.value || !email.value || !password.value) {
-    alert("Preencha todos os campos!");
+    triggerToast("Preencha todos os campos!", 'error');
     return;
   }
 
   // 1. Abrir (ou criar) o Banco de Dados IndexedDB
   const request = window.indexedDB.open("QrSafeDB", 1);
 
-  // 2. Cria a tabela 'users' se ela não existir (executa na primeira vez)
+  // 2. Cria a tabela 'users' se ela não existir
   request.onupgradeneeded = (event) => {
     const db = event.target.result;
-    if (!db.objectStorenomes.contains("users")) {
-      // Cria a 'tabela' users usando o email como chave única (ID)
+    if (!db.objectStoreNames.contains("users")) {
       db.createObjectStore("users", { keyPath: "email" });
     }
   };
 
   request.onsuccess = (event) => {
     const db = event.target.result;
-    // 3. Inicia uma transação de escrita
     const transaction = db.transaction(["users"], "readwrite");
     const objectStore = transaction.objectStore("users");
 
@@ -35,27 +50,44 @@ const handleRegister = () => {
     const addUserRequest = objectStore.add({
       nome: nome.value,
       email: email.value,
-      password: password.value // Nota: Em produção real, nunca salve senhas sem criptografia
+      password: password.value
     });
 
     addUserRequest.onsuccess = () => {
-      alert("Usuário cadastrado com sucesso!");
-      router.push('/login'); // Redireciona para a rota de login
+      // SUCESSO
+      triggerToast("Conta criada com sucesso! Redirecionando...", 'success');
+
+      // Aguarda 2 segundos para o usuário ler o toast antes de ir pro login
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
     };
 
     addUserRequest.onerror = () => {
-      alert("Erro: Este e-mail já está cadastrado.");
+      // ERRO (Geralmente email duplicado)
+      triggerToast("Erro: Este e-mail já está cadastrado.", 'error');
     };
   };
 
   request.onerror = () => {
-    alert("Erro ao acessar o banco de dados local.");
+    triggerToast("Erro crítico ao acessar o banco de dados.", 'error');
   };
 };
 </script>
 
 <template>
-  <main class="min-h-screen items-center px-4 bg-[#EEEEEE] pt-10">
+  <main class="min-h-screen items-center px-4 bg-[#EEEEEE] pt-10 relative">
+
+    <!-- COMPONENTE TOAST -->
+    <div v-if="toast.show" class="toast toast-top toast-end z-50 mt-4 mr-2">
+      <div :class="['alert shadow-lg text-white font-semibold', toast.type === 'success' ? 'alert-success' : 'alert-error']">
+        <!-- Ícones Opcionais -->
+        <span v-if="toast.type === 'success'">✅</span>
+        <span v-else>⚠️</span>
+        <span>{{ toast.message }}</span>
+      </div>
+    </div>
+
     <div class="w-full max-w-md mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
       <div class="w-full max-w-[420px] mx-auto text-center mt-2 mb-6">
         <h1 class="text-3xl sm:text-4xl font-bold leading-tight">Cadastre-se</h1>

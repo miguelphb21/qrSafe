@@ -6,7 +6,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home', // <--- ADICIONADO O NOME
-      component: () => import('@/views/HomeMain.vue'),
+      component: () => import('@/views/HomePage.vue'),
     },
     {
       path: '/cadastro',
@@ -14,27 +14,37 @@ const router = createRouter({
       component: () => import('@/views/CadastroMain.vue'),
     },
     {
+      path: '/informacoes',
+      name: 'informacoes',
+      component: () => import('@/views/InformacoesMain.vue'),
+      meta: { requerAuth: true }
+    },
+    {
+      path: '/emergencia',
+      name: 'emergencia',
+      component: () => import('@/views/cartaoMain.vue'),
+      // Esta rota NÃO deve ter 'requerAuth', pois o médico/socorrista não tem login
+    },
+    {
       path: '/sobre',
       name: 'sobre', // <--- ADICIONADO O NOME
       component: () => import('@/views/sobreMain.vue')
     },
     {
-      path: '/registro',
-      name: 'registro', // <--- ADICIONADO O NOME
-      component: () => import('@/views/RegistroMain.vue')
+      path: '/cartao',
+      name: 'cartao', // <--- ADICIONADO O NOME
+      component: () => import('@/views/CartaoView.vue')
     },
     {
       path: '/login',
       name: 'login', // <--- ADICIONADO O NOME
       component: () => import('@/views/LoginMain.vue')
     },
-    // ADICIONE ESTA ROTA PARA A TELA LOGADA (O CARTÃO)
-    // {
-    //   path: '/cartao',
-    //   name: 'cartao',
-    //   // Certifique-se de criar este arquivo ou apontar para onde salvou o form
-    //   component: () => import('@/views/CartaoMain.vue')
-    // },
+    {
+      path: '/pagina-inicial',
+      name: 'pagina-inicial',
+      component: () => import('@/views/PaginaInicial.vue')
+    }
   ],
 })
 

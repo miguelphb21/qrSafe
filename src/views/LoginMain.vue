@@ -12,9 +12,10 @@ const handleLogin = () => {
     return;
   }
 
+  // Abre o banco de dados
   const request = window.indexedDB.open("QrSafeDB", 1);
 
-  request.onerror = () => alert("Erro ao abrir o banco de dados. Você já se cadastrou?");
+  request.onerror = () => alert("Erro ao abrir o banco de dados.");
 
   request.onsuccess = (event) => {
     const db = event.target.result;
@@ -30,10 +31,28 @@ const handleLogin = () => {
 
     getRequest.onsuccess = () => {
       const user = getRequest.result;
+
       if (user) {
         if (user.password === password.value) {
-          alert("Login realizado com sucesso!");
-          router.push('/registro');
+          // 1. LOGIN SUCESSO: Salva sessão e dados do usuário
+          localStorage.setItem('usuarioLogado', 'true');
+          localStorage.setItem('dadosUsuario', JSON.stringify(user));
+
+          // alert("Login realizado com sucesso!"); // Comentado para ser mais fluido
+
+          // --- LÓGICA DE REDIRECIONAMENTO INTELIGENTE ---
+          // Verifica se existe um cartão salvo ESPECIFICAMENTE para este email
+          const chaveCartao = `cartao_${user.email}`;
+          const cartaoExistente = localStorage.getItem(chaveCartao);
+
+          if (cartaoExistente) {
+            // Usuário JÁ TEM cartão -> Vai para a Home
+            router.push('/pagina-inicial');
+          } else {
+            // Usuário NÃO TEM cartão (Primeiro acesso) -> Vai criar o cartão
+            router.push('/cartao');
+          }
+
         } else {
           alert("Senha incorreta!");
         }

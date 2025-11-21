@@ -4,11 +4,18 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 
-// 1. Lógica para esconder o Header INTEIRO (já existente)
-const mostrarMenu = computed(() => {
-  const rotasEscondidas = ['login', 'cadastro'];
+const esconder = computed(() => {
+  const rotasEscondidas = ['registro', 'cartao', 'sobre', 'pagina-inicial', 'emergencia'];
+  return rotasEscondidas.includes(route.name);
+});
+
+const mostrar = computed(() => {
+  const rotasEscondidas = ['registro', 'cartao', 'sobre', 'pagina-inicial', 'emergencia'];
   return !rotasEscondidas.includes(route.name);
 });
+
+// 1. Lógica para esconder o Header INTEIRO (já existente)
+
 
 // 2. NOVA Lógica: Verifica se o usuário está logado baseando-se na rota atual
 const usuarioLogado = computed(() => {
@@ -21,16 +28,26 @@ const usuarioLogado = computed(() => {
 </script>
 
 <template>
-  <header v-if="mostrarMenu">
-    <div class="navbar bg-[#000] text-neutral-content">
+  <header>
+    <div class="navbar bg-[#000] text-neutral-content" >
 
-      <div class="navbar-start ml-6">
+      <div class="navbar-start ml-6" v-if="mostrar">
         <RouterLink to="/">
-          <button class="cursor-pointer text-[20px] font-extrabold flex items-center text-white">
+          <button  class="cursor-pointer text-[20px] font-extrabold flex items-center text-white bg-red-900">
             QrSafe
             <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="Logo">
           </button>
         </RouterLink>
+      </div>
+
+      <div class="navbar-start ml-6" v-if="esconder">
+        <RouterLink to="/pagina-inicial">
+          <button class="text-[20px] font-extrabold flex items-center text-white">
+            QrSafe
+            <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="Logo">
+          </button>
+        </RouterLink>
+
       </div>
 
       <div class="md:hidden navbar-end">
@@ -74,8 +91,8 @@ const usuarioLogado = computed(() => {
         <ul class="menu menu-horizontal px-1">
 
           <template v-if="!usuarioLogado">
-            <li><RouterLink to="/cadastro">Cadastro</RouterLink></li>
-            <li><RouterLink to="/login">Login</RouterLink></li>
+            <li v-if="mostrarMenu"><RouterLink to="/cadastro">Cadastro</RouterLink></li>
+            <li v-if="mostrarMenu"><RouterLink to="/login">Login</RouterLink></li>
           </template>
 
           <li><RouterLink to="/sobre">Sobre</RouterLink></li>
