@@ -21,7 +21,7 @@
   texto2: String,
   colorClass: {
     type: String,
-    default: 'bg-#fff'
+    default: 'bg-[#fff]'
   }
 })
 
