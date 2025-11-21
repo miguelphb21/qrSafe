@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import CardFatosImportantes from '@/components/cardFatosImportantes.vue';
 import CardMain from '@/components/CardMain.vue';
-import ChamadaParaInstalação from '@/components/chamadaParaInstalação.vue';
+import ChamadaParaInstalação from '@/components/chamadaParacriacao.vue';
 </script>
 
 <template>
-  <main>
+  <main class="bg-[#EEEEEE]">
     <div class=" text-center text-4xl mt-6 mr-6 ml-6 ">
       <h1 class="text-4x1 font-bold">Sobre o QrSafe </h1>
     </div>

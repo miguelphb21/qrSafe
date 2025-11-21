@@ -6,7 +6,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   </head>
   <ComponentHeader/>
-  <InformacoesMain/>
+    <!-- <LoginMain/> -->
+    <RouterView/>
   <ComponentFooter/>
 
 
@@ -16,7 +17,9 @@
 
   import ComponentFooter from "@/components/componentFooter.vue";
   import ComponentHeader from "@/components/componentHeader.vue";
-  import InformacoesMain from "@/views/InformacoesMain.vue";
+// import LoginMain from "@/views/LoginMain.vue";
+  // import InformacoesMain from "@/views/InformacoesMain.vue";
+  // import LoginMain from "@/views/LoginMain.vue";
   // import LoginMain from "@/views/LoginMain.vue";
   // import ComponentMain from "@/views/HomeMain.vue";
   // import ComponentRegistro from "@/views/CadastroMain.vue";

@@ -12,7 +12,7 @@
   </div>
 </template>
 
-<!-- Sua segurança não espera. Crie seu cartão de emergência em menos de 2 minutos -->
+<!--  -->
 <script setup>
   defineProps(["texto" , "titulo"])
 </script>

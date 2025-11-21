@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { RouterLink } from 'vue-router';
 
 </script>
@@ -6,8 +6,10 @@ import { RouterLink } from 'vue-router';
 <template>
   <footer class="bg-[#000]">
     <div class="text-[#fff] m-auto w-85 pb-10 rounded-lg shadow-lg max-w-sm">
-      <button class="navbar-start cursor-pointer text-[50px] font-extrabold pb-2">QrSafe <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="">
-      </button>
+      <router-link to="/">
+        <button class="navbar-start cursor-pointer text-[50px] font-extrabold pb-2">QrSafe <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="">
+        </button>
+      </router-link>
       <h6 class="pb-1">Redes Sociais</h6>
       <hr>
       <div class="flex items-center pb-2">
