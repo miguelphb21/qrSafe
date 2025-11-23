@@ -131,7 +131,7 @@ const verPreviaPublica = () => {
   <main v-if="etapa === 'form'" class="min-h-screen bg-[#EEEEEE] py-10 px-4 flex justify-center relative">
 
     <!-- BOTÃO VOLTAR (Etapa 1) -->
-    <button @click="router.push('/')" class="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-black font-bold transition-colors z-20 cursor-pointer group">
+    <button @click="router.push('/dashboard')" class="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-black font-bold transition-colors z-20 cursor-pointer group">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 group-hover:-translate-x-1 transition-transform">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
@@ -180,7 +180,7 @@ const verPreviaPublica = () => {
   <main v-else-if="etapa === 'card'" class="min-h-screen bg-[#EEEEEE] flex flex-col items-center justify-center px-4 relative">
 
     <!-- BOTÃO VOLTAR (Etapa 2) -->
-    <button @click="router.push('/')" class="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-black font-bold transition-colors z-20 cursor-pointer group">
+    <button @click="router.push('/dashboard')" class="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-black font-bold transition-colors z-20 cursor-pointer group">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 group-hover:-translate-x-1 transition-transform">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>

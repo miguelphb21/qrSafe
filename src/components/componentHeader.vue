@@ -14,7 +14,7 @@ const mostrar = computed(() => {
 
 // 2. Verifica se o usuário está LOGADO baseado na rota (UI Logada)
 const usuarioLogado = computed(() => {
-  const rotasAutenticadas = ['home', 'cartao'];
+  const rotasAutenticadas = ['dashboard', 'cartao'];
   return route.name && rotasAutenticadas.includes(route.name);
 });
 
@@ -43,7 +43,7 @@ const fazerLogout = () => {
 
       <!-- LOGO (Canto Esquerdo) -->
       <div class="navbar-start ml-6">
-        <RouterLink :to="usuarioLogado ? '/' : '/home'">
+        <RouterLink :to="usuarioLogado ? '/dashboard' : '/'">
           <button class="cursor-pointer text-[20px] font-extrabold flex items-center text-white hover:opacity-80 transition-opacity">
             QrSafe
             <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="Logo">

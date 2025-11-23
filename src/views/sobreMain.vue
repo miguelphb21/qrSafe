@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import CardFatosImportantes from '@/components/cardFatosImportantes.vue';
 import CardMain from '@/components/CardMain.vue';
 import ChamadaParaInstalação from '@/components/chamadaParacriacao.vue';

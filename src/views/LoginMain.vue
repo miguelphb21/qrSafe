@@ -30,7 +30,7 @@ const handleLogin = async () => {
         const temCartao = await verificarCartaoExistente(user.email);
 
         if (temCartao) {
-          router.push('/');
+          router.push('/dashboard');
         } else {
           router.push('/cartao'); // Ou home, dependendo da sua lógica
         }
