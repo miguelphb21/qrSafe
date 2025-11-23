@@ -1,134 +1,114 @@
 <script setup>
-import { onMounted, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import qrLogo from '../assets/images/qrLogo.png';
+// Importa funções do banco
+import { getSessao,  verificarCartaoExistente } from '../services/db';
 
-const route = useRoute();
+const router = useRouter();
+const nomeUsuario = ref('');
+const temCartao = ref(false);
 
-// Objeto que receberá os dados vindos da URL (do QR Code)
-const dados = reactive({
-  nome: 'Desconhecido',
-  celular: '',
-  contato: '',
-  telefoneEmergencia: '',
-  alergias: 'Nenhuma',
-  tipoSanguineo: '',
-  medicamentos: 'Nenhum',
-  condicoesMedicas: 'Nenhuma'
-});
+onMounted(async () => {
+  try {
+    // 1. Busca a sessão no IndexedDB
+    const usuarioLogado = await getSessao();
 
-onMounted(() => {
-  // Pega os dados da URL (Query Params)
-  const q = route.query;
-
-  if (q.nome) dados.nome = q.nome;
-  if (q.celular) dados.celular = q.celular;
-  if (q.contato) dados.contato = q.contato;
-  if (q.telefoneEmergencia) dados.telefoneEmergencia = q.telefoneEmergencia;
-  if (q.alergias) dados.alergias = q.alergias;
-  if (q.tipoSanguineo) dados.tipoSanguineo = q.tipoSanguineo;
-  if (q.medicamentos) dados.medicamentos = q.medicamentos;
-  if (q.condicoesMedicas) dados.condicoesMedicas = q.condicoesMedicas;
-});
-
-// Função para copiar texto
-const copiar = (texto) => {
-  if(texto) {
-    navigator.clipboard.writeText(texto);
-    alert("Copiado: " + texto);
-  }
-};
-
-const compartilhar = () => {
-    if (navigator.share) {
-        navigator.share({
-            title: `Emergência: ${dados.nome}`,
-            url: window.location.href
-        });
-    } else {
-        copiar(window.location.href);
-        alert("Link copiado para a área de transferência");
+    if (!usuarioLogado) {
+      alert("Acesso negado. Faça login.");
+      router.push('/login');
+      return;
     }
-};
+
+    // 2. Preenche dados
+    nomeUsuario.value = usuarioLogado.nome;
+
+    // 3. Verifica cartão (aqui ainda usando a lógica mista ou DB se você migrou cartões)
+    const cartao = await verificarCartaoExistente(usuarioLogado.email);
+    if (cartao) temCartao.value = true;
+
+  } catch (error) {
+    console.error("Erro ao carregar home:", error);
+    router.push('/login');
+  }
+});
+
+
+
+const irParaCartao = () => router.push('/cartao');
 </script>
 
 <template>
-    <main class="items-center px-4 bg-[#EEEEEE] min-h-screen pb-10">
-        <img src="../assets/images/pessoa.svg" alt="Avatar" class="mx-auto mt-7 w-24 h-24">
-        <div class="text-center">
-            <h1 class="font-semibold text-xl mt-2">{{ dados.nome }}</h1>
+  <!-- O HTML PERMANECE EXATAMENTE O MESMO DO CÓDIGO ANTERIOR -->
+  <main class="min-h-screen bg-[#F5F5F5] pb-20 font-sans">
+    <header class="bg-black text-white p-6 pt-10 rounded-b-[30px] shadow-2xl relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-gray-400 text-sm font-medium mb-1">Bem-vindo(a) de volta,</p>
+            <h1 class="text-2xl font-bold capitalize tracking-tight">{{ nomeUsuario || '...' }}</h1>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <div class="bg-white/20 p-2 rounded-full backdrop-blur-sm shadow-inner">
+               <img :src="qrLogo" class="w-8 h-8 invert " alt="Logo">
+            </div>
+
+          </div>
         </div>
 
-        <div class="w-full max-w-md mx-auto p-7 mt-6 mb-25 bg-white border border-gray-200 rounded-lg shadow-lg">
-
-            <!-- BLOCO MÉDICO -->
-            <div>
-                <h2 class="text-center font-bold mb-7 mt-5">Informações médicas</h2>
-
-                <div class="bg-red-100 border border-red-100 rounded-lg shadow-lg p-4">
-
-                    <p class="font-semibold text-red-700 mx-auto mt-2 ml-2">Tipo Sanguíneo</p>
-                    <p class="ml-2 text-[#FF7171] font-bold text-lg">{{ dados.tipoSanguineo || '---' }}</p>
-
-                    <p class="font-semibold text-red-700 mt-4 ml-2">Alergias</p>
-                    <p class="ml-2 text-[#FF7171]">{{ dados.alergias }}</p>
-
-                    <p class="font-semibold text-red-700 mt-4 ml-2">Condição</p>
-                    <p class="ml-2 text-[#FF7171]">{{ dados.condicoesMedicas }}</p>
-
-                    <p class="font-semibold text-red-700 mt-4 ml-2">Medicamentos</p>
-                    <p class="ml-2 mb-2 text-[#FF7171]">{{ dados.medicamentos }}</p>
-
-                </div>
-            </div>
-
-            <h3 class="text-center font-bold mb-10 mt-8">Identificação pessoal</h3>
-
-            <!-- BLOCO CONTATOS -->
-            <div class="border shadow-lg bg-[#DDDDDD] border-gray-300 rounded-lg mb-15 p-4">
-
-                <!-- Telefone Pessoal -->
-                <div class="mb-4">
-                    <p class="font-semibold text-[#000000] mx-auto ml-2">Telefone Pessoal</p>
-                    <div class="flex justify-between items-center mt-1">
-                        <span class="ml-2 pr-4 text-[#636363]">{{ dados.celular || 'Não informado' }}</span>
-                        <button @click="copiar(dados.celular)" class="text-[#5582FF] text-sm font-bold hover:underline">
-                            Copiar
-                        </button>
-                    </div>
-                </div>
-
-                <hr class="border-gray-400 my-3 opacity-30">
-
-                <!-- Contato de Emergência -->
-                <div>
-                    <p class="font-semibold text-[#000000] mt-2 ml-2">Contato de Emergência</p>
-                    <!-- Exibindo apenas o número principal para simplificar, ou ambos se preferir -->
-                    <p class="ml-2 mb-0 text-[#636363] font-medium">Responsável</p>
-                    <div class="flex justify-between items-center mt-1 ml-2 mb-2">
-                        <span class="pr-4 text-[#636363]">{{ dados.contato || '---' }}</span>
-                        <button @click="copiar(dados.contato)" class="text-[#5582FF] text-sm font-bold hover:underline">
-                            Copiar
-                        </button>
-                    </div>
-
-                    <!-- Segundo contato se existir -->
-                    <div v-if="dados.telefoneEmergencia">
-                        <p class="ml-2 mb-0 text-[#636363] text-sm mt-2">Alternativo</p>
-                        <div class="flex justify-between items-center mt-1 ml-2">
-                            <span class="pr-4 text-[#636363]">{{ dados.telefoneEmergencia }}</span>
-                            <button @click="copiar(dados.telefoneEmergencia)" class="text-[#5582FF] text-sm font-bold hover:underline">
-                                Copiar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-5 flex justify-center">
-                <button @click="compartilhar" class="w-full bg-black text-[15px] font-bold text-white py-2 rounded-[7px] hover:bg-gray-800 transition">
-                    Compartilhar Cartão
-                </button>
-            </div>
+        <div v-if="temCartao" class="mt-8 bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex items-center justify-between shadow-lg">
+          <div>
+            <p class="font-bold text-sm text-white">Status do QR Code</p>
+            <p class="text-xs text-green-400 flex items-center gap-1.5 mt-1 font-medium bg-green-400/10 px-2 py-1 rounded-md w-fit">
+              <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]"></span> Ativo e seguro
+            </p>
+          </div>
+          <button @click="irParaCartao" class="bg-white text-black text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gray-100 hover:scale-105 active:scale-95 transition-all shadow-md">
+            Ver Cartão
+          </button>
         </div>
-    </main>
+
+        <div v-else class="mt-8 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl text-center shadow-lg">
+           <div class="bg-white/10 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">⚠️</div>
+           <p class="text-sm font-medium text-gray-200 mb-4">Você ainda não configurou seu cartão.</p>
+           <button @click="irParaCartao" class="bg-white text-black text-sm font-bold px-6 py-3 rounded-xl w-full hover:bg-gray-100 transition-colors shadow-md">
+             Criar Cartão Agora
+           </button>
+        </div>
+      </div>
+      <div class="absolute -right-10 -bottom-20 w-64 h-64 bg-gray-800 rounded-full opacity-50 blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-10 -top-20 w-64 h-64 bg-gray-900 rounded-full opacity-50 blur-3xl pointer-events-none"></div>
+    </header>
+
+    <div class="px-6 -mt-6 relative z-20">
+      <div v-if="temCartao">
+        <h3 class="font-bold text-gray-800 mt-8 mb-4 text-lg tracking-tight">Acesso Rápido</h3>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div @click="irParaCartao" class="p-5 border-b border-gray-100 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group">
+            <div class="flex items-center gap-4">
+              <div class="bg-gray-100 p-3 rounded-xl group-hover:bg-black group-hover:text-white transition-colors">📝</div>
+              <div>
+                <p class="font-bold text-sm text-gray-900">Editar Meus Dados</p>
+                <p class="text-xs text-gray-500 mt-0.5">Atualize informações médicas</p>
+              </div>
+            </div>
+            <span class="text-gray-300 group-hover:text-black transition-colors">›</span>
+          </div>
+          <div class="p-5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors group">
+            <div class="flex items-center gap-4">
+              <div class="bg-gray-100 p-3 rounded-xl group-hover:bg-black group-hover:text-white transition-colors">🔗</div>
+              <div>
+                <p class="font-bold text-sm text-gray-900">Compartilhar</p>
+                <p class="text-xs text-gray-500 mt-0.5">Envie seu perfil para contatos</p>
+              </div>
+            </div>
+            <span class="text-gray-300 group-hover:text-black transition-colors">›</span>
+          </div>
+        </div>
+      </div>
+      <div v-else class="mt-12 text-center px-4">
+        <p class="text-gray-400 text-sm">Complete seu cadastro acima para desbloquear as funcionalidades.</p>
+      </div>
+    </div>
+  </main>
 </template>

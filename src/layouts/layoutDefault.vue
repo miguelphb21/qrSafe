@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   </head>
   <ComponentHeader/>
-    <!-- <LoginMain/> -->
+
     <RouterView/>
 
   <ComponentFooter/>
@@ -18,7 +18,8 @@
 
   import ComponentFooter from "@/components/componentFooter.vue";
   import ComponentHeader from "@/components/componentHeader.vue";
-  
+  import { RouterView } from "vue-router";
+
 </script>
 
 <style scoped>

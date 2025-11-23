@@ -7,20 +7,40 @@ const router = useRouter();
 const nome = ref('');
 const email = ref('');
 const password = ref('');
+const confirmPassword = ref('');
+
+
+const toast = reactive({
+  show: false,
+  message: '',
+  type: 'success'
+});
+
+const triggerToast = (msg, type = 'success') => {
+  toast.message = msg;
+  toast.type = type;
+  toast.show = true;
+  setTimeout(() => {
+    toast.show = false;
+  }, 3000);
+};
 
 const handleRegister = () => {
-  if (!nome.value || !email.value || !password.value) {
-    alert("Preencha todos os campos!");
+  if (!nome.value || !email.value || !password.value || !confirmPassword.value) {
+    triggerToast("Preencha todos os campos!", 'error');
+    return;
+  }
+
+  if (password.value !== confirmPassword.value) {
+    triggerToast("As senhas não coincidem!", 'error');
     return;
   }
 
   const request = window.indexedDB.open("QrSafeDB", 1);
 
-  // 2. Cria a tabela 'users' se ela não existir (executa na primeira vez)
-  request.onupgradeneeded = (event) => {
-    const db = event.target.result;
-    if (!db.objectStorenomes.contains("users")) {
-      // Cria a 'tabela' users usando o email como chave única (ID)
+  request.onupgradeneeded = async (event) => {
+    const db = await event.target.result;
+    if (!db.objectStoreNames.contains("users")) {
       db.createObjectStore("users", { keyPath: "email" });
     }
   };
@@ -37,12 +57,14 @@ const handleRegister = () => {
     });
 
     addUserRequest.onsuccess = () => {
-      alert("Usuário cadastrado com sucesso!");
-      router.push('/login'); // Redireciona para a rota de login
+      triggerToast("Conta criada com sucesso! Redirecionando...", 'success');
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
     };
 
     addUserRequest.onerror = () => {
-      alert("Erro: Este e-mail já está cadastrado.");
+      triggerToast("Erro: Este e-mail já está cadastrado.", 'error');
     };
   };
 
@@ -53,11 +75,33 @@ const handleRegister = () => {
 </script>
 
 <template>
-  <main class="min-h-screen items-center px-4 bg-[#EEEEEE] pt-10">
-    <div class="w-full max-w-md mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
-      <div class="w-full max-w-[420px] mx-auto text-center mt-2 mb-6">
-        <h1 class="text-3xl sm:text-4xl font-bold leading-tight">Cadastre-se</h1>
-        <p class="text-[15px] mt-4 text-gray-600">Preencha com suas informações de login</p>
+  <!-- Fundo cinza suave -->
+  <main class="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4 font-sans text-gray-900">
+
+    <!-- TOAST -->
+    <Transition
+      enter-active-class="transform ease-out duration-300 transition"
+      enter-from-class="translate-y-2 opacity-0"
+      enter-to-class="translate-y-0 opacity-100"
+      leave-active-class="transition ease-in duration-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="toast.show" class="fixed top-6 right-6 z-50">
+        <div :class="['px-6 py-4 rounded-lg shadow-xl border-l-4 font-medium bg-white',
+          toast.type === 'success' ? 'border-green-500 text-green-700' : 'border-red-500 text-red-700']">
+          {{ toast.message }}
+        </div>
+      </div>
+    </Transition>
+
+    <!-- CARD PRINCIPAL: Aumentado para max-w-3xl para acomodar itens horizontais -->
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+
+      <!-- Cabeçalho com mais espaçamento -->
+      <div class="px-10 pt-12 pb-8 text-center border-b border-gray-100">
+        <h1 class="text-4xl font-extrabold tracking-tight text-black mb-2">Cadastre-se</h1>
+        <p class="text-gray-500 text-sm font-medium">Crie sua conta para acessar o QrSafe</p>
       </div>
 
       <!-- Formulário: GRID Layout adicionado -->

@@ -1,30 +1,37 @@
 <script setup>
 import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'; // Adicionado useRouter
 
 const route = useRoute();
-const router = useRouter();
+const router = useRouter(); // Instância do roteador para redirecionar
 
 // 1. Controla se a LOGO e o MENU MOBILE aparecem
 const mostrar = computed(() => {
   const rotasEscondidas = ['login', 'cadastro', 'registro'];
+  // Se route.name for undefined (carregando), assume false para evitar erros
   return route.name && !rotasEscondidas.includes(route.name);
 });
 
 // 2. Verifica se o usuário está LOGADO baseado na rota (UI Logada)
 const usuarioLogado = computed(() => {
-  const rotasAutenticadas = ['home', 'cartao', 'emergencia'];
+  const rotasAutenticadas = ['home', 'cartao'];
   return route.name && rotasAutenticadas.includes(route.name);
 });
 
-// 3. FUNÇÃO DE LOGOUT
+// 3. FUNÇÃO DE LOGOUT (Adicionada)
 const fazerLogout = () => {
+  // A. Limpa os dados de sessão do navegador
   localStorage.removeItem('usuarioLogado');
   localStorage.removeItem('dadosUsuario');
 
+  // Opcional: Se quiser limpar o cartão da memória também
+  // localStorage.removeItem('cartaoEmergencia');
+
+  // B. Fecha o menu mobile se estiver aberto (buscando pelo ID do checkbox)
   const drawerCheckbox = document.getElementById('my-drawer-5');
   if (drawerCheckbox) drawerCheckbox.checked = false;
 
+  // C. Redireciona para a tela de login
   router.push('/login');
 };
 </script>
@@ -44,7 +51,7 @@ const fazerLogout = () => {
         </RouterLink>
       </div>
 
-      <!-- MENU MOBILE -->
+      <!-- MENU MOBILE (Drawer / Hambúrguer) -->
       <div class="md:hidden navbar-end">
         <input id="my-drawer-5" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content">
@@ -62,40 +69,42 @@ const fazerLogout = () => {
               <label for="my-drawer-5" aria-label="close sidebar" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</label>
             </li>
 
-            <!-- MOBILE: Se NÃO estiver logado -->
+            <!-- ITENS MOBILE -->
             <template v-if="!usuarioLogado">
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/cadastro">Cadastro</RouterLink></li>
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/login">Login</RouterLink></li>
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/sobre">Sobre</RouterLink></li>
             </template>
 
-            <!-- MOBILE: Se ESTIVER logado -->
+            <!-- Se ESTIVER logado -->
             <template v-else>
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/cartao">Meu Cartão</RouterLink></li>
+              <!-- AQUI MUDOU: Agora chama a função fazerLogout -->
               <li><a @click="fazerLogout" class="text-red-600 hover:bg-red-50">Sair</a></li>
             </template>
           </ul>
         </div>
       </div>
 
-      <!-- MENU DESKTOP -->
+      <!-- MENU DESKTOP (Telas Grandes) -->
       <div class="navbar-end hidden md:flex">
         <ul class="menu menu-horizontal px-1 font-semibold text-sm">
 
-          <!-- Se NÃO estiver logado -->
+          <!-- Se NÃO estiver logado: Mostra tudo -->
           <template v-if="!usuarioLogado">
             <li v-if="mostrar" class="hover:text-gray-300 transition-colors"><RouterLink to="/cadastro">Cadastro</RouterLink></li>
             <li v-if="mostrar" class="hover:text-gray-300 transition-colors"><RouterLink to="/login">Login</RouterLink></li>
             <li class="hover:text-gray-300 transition-colors"><RouterLink to="/sobre">Sobre</RouterLink></li>
           </template>
 
-          <!-- Se ESTIVER logado -->
+          <!-- Se ESTIVER logado: Mostra Sair -->
           <template v-else>
-            <li>
-              <button @click="fazerLogout" class="hover:text-red-400 transition-colors cursor-pointer">
-                Sair
-              </button>
-            </li>
+             <!-- AQUI MUDOU: Botão Sair com lógica -->
+             <li>
+               <button @click="fazerLogout" class="hover:text-red-400 transition-colors cursor-pointer">
+                 Sair
+               </button>
+             </li>
           </template>
 
         </ul>

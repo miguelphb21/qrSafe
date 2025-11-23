@@ -16,28 +16,21 @@ const handleLogin = async () => {
     return;
   }
 
-  const request = window.indexedDB.open("QrSafeDB", 1);
+  try {
+    // 1. Busca usuário no IndexedDB
+    const user = await buscarUsuarioPorEmail(email.value);
 
-  request.onerror = () => alert("Erro ao abrir o banco de dados. Você já se cadastrou?");
+    if (user) {
+      if (user.password === password.value) {
 
-  request.onsuccess = (event) => {
-    const db = event.target.result;
+        // 2. SALVA A SESSÃO NO INDEXEDDB (Substitui o localStorage)
+        await salvarSessao(user);
 
-    if (!db.objectStoreNames.contains("users")) {
-      alert("Nenhum usuário cadastrado encontrado.");
-      return;
-    }
+        // 3. Verifica cartão e redireciona
+        const temCartao = await verificarCartaoExistente(user.email);
 
-    const transaction = db.transaction(["users"], "readonly");
-    const objectStore = transaction.objectStore("users");
-    const getRequest = objectStore.get(email.value);
-
-    getRequest.onsuccess = () => {
-      const user = getRequest.result;
-      if (user) {
-        if (user.password === password.value) {
-          alert("Login realizado com sucesso!");
-          router.push('/registro');
+        if (temCartao) {
+          router.push('/');
         } else {
           router.push('/cartao'); // Ou home, dependendo da sua lógica
         }
