@@ -18,17 +18,7 @@
 
   import ComponentFooter from "@/components/componentFooter.vue";
   import ComponentHeader from "@/components/componentHeader.vue";
-// import LoginMain from "@/views/LoginMain.vue";
-  // import InformacoesMain from "@/views/InformacoesMain.vue";
-  // import LoginMain from "@/views/LoginMain.vue";
-  // import LoginMain from "@/views/LoginMain.vue";
-  // import ComponentMain from "@/views/HomeMain.vue";
-  // import ComponentRegistro from "@/views/CadastroMain.vue";
-  // import { onMounted } from "vue";
-  // // import { RouterView } from 'vue-router';
-
-
-
+  
 </script>
 
 <style scoped>
