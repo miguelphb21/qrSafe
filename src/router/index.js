@@ -4,8 +4,8 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home', // <--- ADICIONADO O NOME
+      path: '/home',
+      name: 'inicio', // <--- ADICIONADO O NOME
       component: () => import('@/views/HomePage.vue'),
     },
     {
@@ -22,7 +22,7 @@ const router = createRouter({
     {
       path: '/emergencia',
       name: 'emergencia',
-      component: () => import('@/views/cartaoMain.vue'),
+      component: () => import('@/views/PerfilView.vue'),
       // Esta rota NÃO deve ter 'requerAuth', pois o médico/socorrista não tem login
     },
     {
@@ -41,8 +41,8 @@ const router = createRouter({
       component: () => import('@/views/LoginMain.vue')
     },
     {
-      path: '/pagina-inicial',
-      name: 'pagina-inicial',
+      path: '/',
+      name: 'home',
       component: () => import('@/views/PaginaInicial.vue')
     }
   ],

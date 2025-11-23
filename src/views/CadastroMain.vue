@@ -3,50 +3,53 @@ import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
 const nome = ref('');
 const email = ref('');
 const password = ref('');
+const confirmPassword = ref('');
 
-// --- SISTEMA DE TOAST (NOTIFICAÇÃO) ---
+
 const toast = reactive({
   show: false,
   message: '',
-  type: 'success' // 'success' ou 'error'
+  type: 'success'
 });
 
 const triggerToast = (msg, type = 'success') => {
   toast.message = msg;
   toast.type = type;
   toast.show = true;
-  // Esconde depois de 3 segundos
   setTimeout(() => {
     toast.show = false;
   }, 3000);
 };
 
 const handleRegister = () => {
-  if (!nome.value || !email.value || !password.value) {
+  if (!nome.value || !email.value || !password.value || !confirmPassword.value) {
     triggerToast("Preencha todos os campos!", 'error');
     return;
   }
 
-  // 1. Abrir (ou criar) o Banco de Dados IndexedDB
+  if (password.value !== confirmPassword.value) {
+    triggerToast("As senhas não coincidem!", 'error');
+    return;
+  }
+
   const request = window.indexedDB.open("QrSafeDB", 1);
 
-  // 2. Cria a tabela 'users' se ela não existir
-  request.onupgradeneeded = (event) => {
-    const db = event.target.result;
+  request.onupgradeneeded = async (event) => {
+    const db = await event.target.result;
     if (!db.objectStoreNames.contains("users")) {
       db.createObjectStore("users", { keyPath: "email" });
     }
   };
 
-  request.onsuccess = (event) => {
+  request.onsuccess = async (event) => {
     const db = event.target.result;
     const transaction = db.transaction(["users"], "readwrite");
     const objectStore = transaction.objectStore("users");
 
-    // 4. Tenta adicionar o usuário
     const addUserRequest = objectStore.add({
       nome: nome.value,
       email: email.value,
@@ -54,17 +57,13 @@ const handleRegister = () => {
     });
 
     addUserRequest.onsuccess = () => {
-      // SUCESSO
       triggerToast("Conta criada com sucesso! Redirecionando...", 'success');
-
-      // Aguarda 2 segundos para o usuário ler o toast antes de ir pro login
       setTimeout(() => {
         router.push('/login');
       }, 2000);
     };
 
     addUserRequest.onerror = () => {
-      // ERRO (Geralmente email duplicado)
       triggerToast("Erro: Este e-mail já está cadastrado.", 'error');
     };
   };
@@ -76,39 +75,109 @@ const handleRegister = () => {
 </script>
 
 <template>
-  <main class="min-h-screen items-center px-4 bg-[#EEEEEE] pt-10 relative">
+  <!-- Fundo cinza suave -->
+  <main class="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4 font-sans text-gray-900">
 
-    <!-- COMPONENTE TOAST -->
-    <div v-if="toast.show" class="toast toast-top toast-end z-50 mt-4 mr-2">
-      <div :class="['alert shadow-lg text-white font-semibold', toast.type === 'success' ? 'alert-success' : 'alert-error']">
-        <!-- Ícones Opcionais -->
-        <span v-if="toast.type === 'success'">✅</span>
-        <span v-else>⚠️</span>
-        <span>{{ toast.message }}</span>
+    <!-- TOAST -->
+    <Transition
+      enter-active-class="transform ease-out duration-300 transition"
+      enter-from-class="translate-y-2 opacity-0"
+      enter-to-class="translate-y-0 opacity-100"
+      leave-active-class="transition ease-in duration-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="toast.show" class="fixed top-6 right-6 z-50">
+        <div :class="['px-6 py-4 rounded-lg shadow-xl border-l-4 font-medium bg-white',
+          toast.type === 'success' ? 'border-green-500 text-green-700' : 'border-red-500 text-red-700']">
+          {{ toast.message }}
+        </div>
       </div>
-    </div>
+    </Transition>
 
-    <div class="w-full max-w-md mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
-      <div class="w-full max-w-[420px] mx-auto text-center mt-2 mb-6">
-        <h1 class="text-3xl sm:text-4xl font-bold leading-tight">Cadastre-se</h1>
-        <p class="text-[15px] mt-4 text-gray-600">Preencha com suas informações de login</p>
+    <!-- CARD PRINCIPAL: Aumentado para max-w-3xl para acomodar itens horizontais -->
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+
+      <!-- Cabeçalho com mais espaçamento -->
+      <div class="px-10 pt-12 pb-8 text-center border-b border-gray-100">
+        <h1 class="text-4xl font-extrabold tracking-tight text-black mb-2">Cadastre-se</h1>
+        <p class="text-gray-500 text-sm font-medium">Crie sua conta para acessar o QrSafe</p>
       </div>
 
-      <form @submit.prevent="handleRegister">
-        <p class="mt-3 text-[17px] font-semibold">Nome Completo *</p>
-        <input v-model="nome" type="text" class="w-full border border-gray-300 p-1.5 rounded focus:outline-none focus:border-black transition-colors" placeholder="Ex: João Silva...">
+      <!-- Formulário: GRID Layout adicionado -->
+      <form @submit.prevent="handleRegister" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-10 py-12">
 
-        <p class="mt-3 text-[17px] font-semibold">E-mail *</p>
-        <input v-model="email" type="email" class="w-full border border-gray-300 p-1.5 rounded focus:outline-none focus:border-black transition-colors" placeholder="Ex: user@email.com">
-
-        <p class="mt-3 text-[17px] font-semibold">Senha *</p>
-        <input v-model="password" type="password" class="w-full border border-gray-300 p-1.5 rounded focus:outline-none focus:border-black transition-colors" placeholder="Ex: 123456...">
-
-        <div class="p-5 px-0">
-          <button type="submit" class="w-full cursor-pointer bg-black text-[15px] font-bold text-white py-2 rounded-[7px] hover:bg-gray-800 transition-colors">Criar Conta</button>
+        <!-- Grupo Nome (Coluna 1) -->
+        <div class="group">
+          <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5 ml-1 transition-colors group-focus-within:text-black">
+            Nome Completo
+          </label>
+          <input
+            v-model="nome"
+            type="text"
+            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400"
+            placeholder="Ex: João Silva"
+          >
         </div>
 
-        <p class="text-center text-sm">Já tem conta? <router-link to="/login" class="font-bold text-blue-600 hover:underline">Faça Login</router-link></p>
+        <!-- Grupo Email (Coluna 2) -->
+        <div class="group">
+          <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5 ml-1 transition-colors group-focus-within:text-black">
+            E-mail
+          </label>
+          <input
+            v-model="email"
+            type="email"
+            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400"
+            placeholder="Ex: user@email.com"
+          >
+        </div>
+
+        <!-- Grupo Senha (Coluna 1) -->
+        <div class="group">
+          <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5 ml-1 transition-colors group-focus-within:text-black">
+            Senha
+          </label>
+          <input
+            v-model="password"
+            type="password"
+            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400"
+            placeholder="Crie uma senha"
+          >
+        </div>
+
+        <!-- Grupo Repetir Senha (Coluna 2) -->
+        <div class="group">
+          <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5 ml-1 transition-colors group-focus-within:text-black">
+            Repetir Senha
+          </label>
+          <input
+            v-model="confirmPassword"
+            type="password"
+            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400"
+            placeholder="Confirme a senha"
+          >
+        </div>
+
+        <!-- Botão Principal (Ocupa as 2 colunas) -->
+        <div class="md:col-span-2 pt-4">
+          <button
+            type="submit"
+            class="w-full bg-black text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-900 transform active:scale-[0.98] transition-all duration-200 text-base tracking-wide"
+          >
+            Criar Conta
+          </button>
+        </div>
+
+        <!-- Link Login (Ocupa as 2 colunas) -->
+        <div class="md:col-span-2 text-center -mt-2">
+          <p class="text-sm text-gray-500">
+            Já tem conta?
+            <router-link to="/login" class="font-bold text-black border-b-2 border-transparent hover:border-black transition-all pb-0.5">
+              Faça Login
+            </router-link>
+          </p>
+        </div>
       </form>
     </div>
   </main>

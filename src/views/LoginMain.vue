@@ -1,103 +1,83 @@
 <script setup>
 import { RouterLink, useRouter } from 'vue-router';
 import { ref } from 'vue';
+import qrLogo from '../assets/images/qrLogo.png';
+// Importe as funções do serviço novo
+import { buscarUsuarioPorEmail, salvarSessao, verificarCartaoExistente } from '../services/db.js';
+
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
 
-const handleLogin = () => {
+const handleLogin = async () => {
   if (!email.value || !password.value) {
     alert("Preencha e-mail e senha!");
     return;
   }
 
-  // Abre o banco de dados
-  const request = window.indexedDB.open("QrSafeDB", 1);
+  try {
+    // 1. Busca usuário no IndexedDB
+    const user = await buscarUsuarioPorEmail(email.value);
 
-  request.onerror = () => alert("Erro ao abrir o banco de dados.");
+    if (user) {
+      if (user.password === password.value) {
 
-  request.onsuccess = (event) => {
-    const db = event.target.result;
+        // 2. SALVA A SESSÃO NO INDEXEDDB (Substitui o localStorage)
+        await salvarSessao(user);
 
-    if (!db.objectStoreNames.contains("users")) {
-      alert("Nenhum usuário cadastrado encontrado.");
-      return;
-    }
+        // 3. Verifica cartão e redireciona
+        const temCartao = await verificarCartaoExistente(user.email);
 
-    const transaction = db.transaction(["users"], "readonly");
-    const objectStore = transaction.objectStore("users");
-    const getRequest = objectStore.get(email.value);
-
-    getRequest.onsuccess = () => {
-      const user = getRequest.result;
-
-      if (user) {
-        if (user.password === password.value) {
-          // 1. LOGIN SUCESSO: Salva sessão e dados do usuário
-          localStorage.setItem('usuarioLogado', 'true');
-          localStorage.setItem('dadosUsuario', JSON.stringify(user));
-
-          // alert("Login realizado com sucesso!"); // Comentado para ser mais fluido
-
-          // --- LÓGICA DE REDIRECIONAMENTO INTELIGENTE ---
-          // Verifica se existe um cartão salvo ESPECIFICAMENTE para este email
-          const chaveCartao = `cartao_${user.email}`;
-          const cartaoExistente = localStorage.getItem(chaveCartao);
-
-          if (cartaoExistente) {
-            // Usuário JÁ TEM cartão -> Vai para a Home
-            router.push('/pagina-inicial');
-          } else {
-            // Usuário NÃO TEM cartão (Primeiro acesso) -> Vai criar o cartão
-            router.push('/cartao');
-          }
-
+        if (temCartao) {
+          router.push('/');
         } else {
-          alert("Senha incorreta!");
+          router.push('/cartao'); // Ou home, dependendo da sua lógica
         }
+
       } else {
-        alert("Usuário não encontrado com este e-mail.");
+        alert("Senha incorreta!");
       }
-    };
-    getRequest.onerror = () => alert("Erro ao buscar usuário.");
-  };
+    } else {
+      alert("Usuário não encontrado.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Erro no sistema de login.");
+  }
 };
 </script>
 
+<!-- TEMPLATE CONTINUA IGUAL (VISUAL NÃO MUDA) -->
 <template>
-  <main class="min-h-screen bg-[#EEEEEE] flex items-center justify-center">
-    <div class="w-full max-w-md mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
 
-      <div class="text-center mb-8">
-        <router-link to="/">
-          <button class="navbar-start cursor-pointer text-3xl font-extrabold pb-2 flex items-center justify-center w-full">QrSafe <img class="ml-2" width="30" height="30" src="../assets/images/qrLogo.png" alt="Logo"></button>
+  <main class="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4 font-sans text-gray-900">
+    <!-- ... (mesmo código do card de login anterior) ... -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+      <div class="px-8 pt-10 pb-6 text-center">
+        <router-link to="/" class="inline-flex items-center justify-center group mb-4 hover:opacity-80 transition-opacity">
+            <span class="text-3xl font-black tracking-tighter text-black mr-2">QrSafe</span>
+            <img :src="qrLogo" width="35" height="35" alt="Logo QrSafe" class="object-contain" />
         </router-link>
-        <h6 class="text-[15px] mt-4 text-gray-600">Bem-vindo de volta</h6>
+        <h1 class="text-xl font-medium text-gray-500">Bem-vindo de volta</h1>
       </div>
 
-      <form class="flex flex-col gap-4" @submit.prevent="handleLogin">
-        <div>
-          <label class="block text-sm font-bold pb-1" for="email">Email</label>
-          <input v-model="email" type="email" id="email" placeholder="seu@email.com" class="w-full bg-[#cecece] rounded-lg p-3 focus:outline-none focus:border-white transition-colors" />
+      <form class="px-8 pb-10 space-y-6" @submit.prevent="handleLogin">
+        <div class="group">
+          <label for="email" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5 ml-1 transition-colors group-focus-within:text-black">E-mail</label>
+          <input v-model="email" type="email" id="email" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400" placeholder="seu@email.com" />
         </div>
-
-        <div>
-          <label class="block text-sm font-bold pb-1" for="password">Senha</label>
-          <input v-model="password" type="password" id="password" placeholder="********" class="w-full bg-[#cecece] rounded-lg p-3 focus:outline-none focus:border-white transition-colors" />
+        <div class="group">
+          <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5 ml-1 transition-colors group-focus-within:text-black">Senha</label>
+          <input v-model="password" type="password" id="password" class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 font-medium focus:bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all duration-200 placeholder-gray-400" placeholder="********" />
         </div>
-
-        <button type="submit" class="mt-4 bg-black cursor-pointer text-white font-extrabold py-3 rounded-lg hover:bg-gray-900 transition-colors w-full">Entrar</button>
+        <div class="pt-4">
+          <button type="submit" class="w-full bg-black text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-900 transform active:scale-[0.98] transition-all duration-200 text-base tracking-wide">Entrar</button>
+        </div>
+        <div class="text-center pt-2">
+          <p class="text-sm text-gray-500">Ainda não tem conta? <RouterLink to="/cadastro" class="font-bold text-black border-b-2 border-transparent hover:border-black transition-all pb-0.5 ml-1">Cadastre-se aqui</RouterLink></p>
+        </div>
       </form>
-
-      <div class="mt-6 text-center">
-        <h6 class="pb-1 text-sm text-black">Ainda não tem conta?</h6>
-        <RouterLink to="/cadastro">
-          <span class="font-bold underline text-gray-800 cursor-pointer hover:text-gray-700">Cadastre-se aqui</span>
-        </RouterLink>
-      </div>
-
-      <div class="mt-8 flex justify-center items-center pb-2 opacity-50 hover:opacity-100 transition-opacity"></div>
     </div>
   </main>
 </template>

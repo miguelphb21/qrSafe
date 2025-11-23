@@ -7,7 +7,7 @@ import ChamadaParaInstalação from '@/components/chamadaParacriacao.vue';
 <template>
   <main class="bg-[#EEEEEE]">
     <div class=" text-center text-4xl mt-6 mr-6 ml-6 ">
-      <h1 class="text-4x1 font-bold">Sobre o QrSafe </h1>
+      <h1 class="text-4fontx1 -bold">Sobre o QrSafe </h1>
     </div>
     <p class="text-center text-[17px] m-6">Entenda a importância e o impacto de estar preparado para situações de emergência</p>
     <div class="text-start w-85 m-auto pt-5">
