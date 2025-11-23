@@ -4,26 +4,14 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/home',
-      name: 'inicio', // <--- ADICIONADO O NOME
-      component: () => import('@/views/HomePage.vue'),
+      path: '/',
+      name: 'home', // <--- ADICIONADO O NOME
+      component: () => import('@/views/HomeMain.vue'),
     },
     {
       path: '/cadastro',
       name: 'cadastro', // <--- ADICIONADO O NOME
       component: () => import('@/views/CadastroMain.vue'),
-    },
-    {
-      path: '/informacoes',
-      name: 'informacoes',
-      component: () => import('@/views/InformacoesMain.vue'),
-      meta: { requerAuth: true }
-    },
-    {
-      path: '/emergencia',
-      name: 'emergencia',
-      component: () => import('@/views/PerfilView.vue'),
-      // Esta rota NÃO deve ter 'requerAuth', pois o médico/socorrista não tem login
     },
     {
       path: '/sobre',
@@ -40,11 +28,13 @@ const router = createRouter({
       name: 'login', // <--- ADICIONADO O NOME
       component: () => import('@/views/LoginMain.vue')
     },
-    {
-      path: '/',
-      name: 'home',
-      component: () => import('@/views/PaginaInicial.vue')
-    }
+    // ADICIONE ESTA ROTA PARA A TELA LOGADA (O CARTÃO)
+    // {
+    //   path: '/cartao',
+    //   name: 'cartao',
+    //   // Certifique-se de criar este arquivo ou apontar para onde salvou o form
+    //   component: () => import('@/views/CartaoMain.vue')
+    // },
   ],
 })
 
