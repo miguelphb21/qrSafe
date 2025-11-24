@@ -29,6 +29,7 @@ const openDB = () => {
 };
 
 // --- SESSÃO ---
+
 export const salvarSessao = async (usuario) => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -51,7 +52,20 @@ export const getSessao = async () => {
   });
 };
 
+// [NOVO] Necessário para o botão "Sair" funcionar
+export const limparSessao = async () => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["session"], "readwrite");
+    const store = transaction.objectStore("session");
+    const request = store.delete("current");
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject("Erro ao limpar sessão");
+  });
+};
+
 // --- USUÁRIO ---
+
 export const buscarUsuarioPorEmail = async (email) => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -89,14 +103,27 @@ export const buscarCartao = async (email) => {
   });
 };
 
+// [NOVO] Necessário para o botão "Excluir Cartão" funcionar
+export const removerCartao = async (email) => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["cards"], "readwrite");
+    const store = transaction.objectStore("cards");
+    const request = store.delete(email); // Deleta usando o email como chave
+
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject("Erro ao excluir cartão");
+  });
+};
+
+// --- UTILITÁRIOS ---
 
 export const verificarCartaoExistente = async (email) => {
   try {
     const cartao = await buscarCartao(email);
-
     return !!cartao;
   } catch (err) {
-    if (err) return console.log(err)
+    if (err) console.log(err);
     return false;
   }
 };

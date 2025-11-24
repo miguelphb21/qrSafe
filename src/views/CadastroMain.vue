@@ -9,6 +9,7 @@ const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 
+// FrontEND, um cartão que é gerado quando algo der certo ou não
 
 const toast = reactive({
   show: false,
@@ -25,7 +26,8 @@ const triggerToast = (msg, type = 'success') => {
   }, 3000);
 };
 
-const handleRegister = () => {
+const registroDeUsuario = () => {
+  //  se caso alguma caixa de texto estiver alterada
   if (!nome.value || !email.value || !password.value || !confirmPassword.value) {
     triggerToast("Preencha todos os campos!", 'error');
     return;
@@ -105,7 +107,7 @@ const handleRegister = () => {
       </div>
 
       <!-- Formulário: GRID Layout adicionado -->
-      <form @submit.prevent="handleRegister" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-10 py-12">
+      <form @submit.prevent="registroDeUsuario" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-10 py-12">
 
         <!-- Grupo Nome (Coluna 1) -->
         <div class="group">

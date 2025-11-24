@@ -1,12 +1,11 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router'; // <--- Adicionado useRoute
+import { useRouter, useRoute } from 'vue-router';
 import QrcodeVue from 'qrcode.vue';
-// Importamos as funções do banco de dados
-import { getSessao, salvarCartao, buscarCartao } from '../services/db';
+import { getSessao, salvarCartao, buscarCartao, removerCartao } from '../services/db';
 
 const router = useRouter();
-const route = useRoute(); // <--- Instância para ler os parâmetros da URL
+const route = useRoute();
 const etapa = ref('form');
 const nomeUsuario = ref('Usuário');
 const emailUsuario = ref('');
@@ -17,7 +16,6 @@ const form = reactive({
   tipoSanguineo: '', medicamentos: '', condicoesMedicas: ''
 });
 
-// --- SISTEMA DE TOAST (Notificações) ---
 const toast = reactive({
   show: false,
   message: '',
@@ -33,7 +31,6 @@ const triggerToast = (msg, type = 'success') => {
   }, 3000);
 };
 
-// Função auxiliar para gerar a URL do QR Code
 const montarUrlQrCode = () => {
     const baseUrl = window.location.origin;
     const params = new URLSearchParams({
@@ -45,7 +42,6 @@ const montarUrlQrCode = () => {
 
 onMounted(async () => {
   try {
-    // 1. Recupera a sessão do IndexedDB (Assíncrono)
     const userObj = await getSessao();
 
     if (userObj) {
@@ -54,32 +50,25 @@ onMounted(async () => {
       if(userObj.nome) nomeUsuario.value = userObj.nome;
       else if(userObj.email) nomeUsuario.value = userObj.email.split('@')[0];
 
-      // 2. Busca se já existe cartão no Banco de Dados
       const dadosSalvos = await buscarCartao(userObj.email);
 
       if (dadosSalvos) {
-        // Removemos o campo 'email' que vem do objeto do banco para não sujar o form
         const { ...dadosLimpos } = dadosSalvos;
         Object.assign(form, dadosLimpos);
 
-        // --- LÓGICA DE EDIÇÃO ADICIONADA AQUI ---
-        // Se a URL tiver ?editar=true, forçamos a etapa 'form'
         if (route.query.editar === 'true') {
             etapa.value = 'form';
         } else {
-            // Caso contrário, mostra o cartão pronto
             valorQrCode.value = montarUrlQrCode();
             etapa.value = 'card';
         }
       }
     } else {
-      // Se não tiver logado
-      triggerToast("Sessão expirada. Faça login novamente.", 'error');
+      triggerToast("Sessão expirada.", 'error');
       setTimeout(() => router.push('/login'), 1500);
     }
   } catch (error) {
     console.error("Erro ao carregar dados:", error);
-    triggerToast("Erro ao acessar banco de dados.", 'error');
   }
 });
 
@@ -90,24 +79,43 @@ const gerarCartao = async () => {
   }
 
   if (!form.celular || !form.contato) {
-      triggerToast("Preencha os campos obrigatórios (*)", 'error');
+      triggerToast("Preencha campos obrigatórios (*)", 'error');
       return;
   }
 
   try {
-    // 1. Salva os dados no IndexedDB
     await salvarCartao(emailUsuario.value, { ...form });
-
-    // 2. Gera a URL
     valorQrCode.value = montarUrlQrCode();
-    console.log("URL Gerada:", valorQrCode.value);
-
-    // 3. Notifica e MUDA A TELA
     triggerToast("Cartão salvo com sucesso!", 'success');
     etapa.value = 'card';
   } catch (error) {
     console.error(error);
-    triggerToast("Erro ao salvar o cartão.", 'error');
+    triggerToast("Erro ao salvar.", 'error');
+  }
+};
+
+// --- NOVA FUNÇÃO DE EXCLUIR ---
+const excluirCartao = async () => {
+  // 1. Confirmação do usuário
+  if (!confirm("Tem certeza que deseja apagar seu cartão? Essa ação não pode ser desfeita.")) {
+    return;
+  }
+
+  try {
+    // 2. Remove do banco de dados
+    await removerCartao(emailUsuario.value);
+
+    // 3. Limpa os dados do formulário local
+    Object.keys(form).forEach(key => form[key] = '');
+    valorQrCode.value = '';
+
+    // 4. Notifica e volta para o formulário
+    triggerToast("Cartão removido com sucesso.", 'success');
+    etapa.value = 'form';
+
+  } catch (error) {
+    console.error(error);
+    triggerToast("Erro ao excluir cartão.", 'error');
   }
 };
 
@@ -129,8 +137,6 @@ const verPreviaPublica = () => {
 
   <!-- ETAPA 1: FORMULÁRIO -->
   <main v-if="etapa === 'form'" class="min-h-screen bg-[#EEEEEE] py-10 px-4 flex justify-center relative">
-
-    <!-- BOTÃO VOLTAR (Etapa 1) -->
     <button @click="router.push('/dashboard')" class="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-black font-bold transition-colors z-20 cursor-pointer group">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 group-hover:-translate-x-1 transition-transform">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
@@ -138,7 +144,7 @@ const verPreviaPublica = () => {
       Voltar
     </button>
 
-    <div class="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden mt-8 md:mt-0"> <!-- Adicionado margin top para mobile não cobrir com botão -->
+    <div class="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden mt-8 md:mt-0">
       <div class="text-center mt-6 px-6">
         <h1 class="text-3xl font-bold leading-tight">Seu Cartão de Emergência</h1>
         <p class="text-[15px] mt-4 text-gray-600">Preencha seus dados para gerar o QR Code</p>
@@ -179,8 +185,7 @@ const verPreviaPublica = () => {
   <!-- ETAPA 2: CARD COM QR CODE -->
   <main v-else-if="etapa === 'card'" class="min-h-screen bg-[#EEEEEE] flex flex-col items-center justify-center px-4 relative">
 
-    <!-- BOTÃO VOLTAR (Etapa 2) -->
-    <button @click="router.push('/dashboard')" class="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-black font-bold transition-colors z-20 cursor-pointer group">
+    <button @click="router.push('/')" class="absolute top-6 left-6 flex items-center gap-2 text-gray-600 hover:text-black font-bold transition-colors z-20 cursor-pointer group">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 group-hover:-translate-x-1 transition-transform">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
@@ -197,14 +202,11 @@ const verPreviaPublica = () => {
           <p class="text-sm text-gray-300 mt-1">{{ nomeUsuario }}</p>
         </div>
 
-        <!-- QR CODE CLICÁVEL -->
         <div
             @click="verPreviaPublica"
             class="bg-white p-2 rounded cursor-pointer hover:scale-105 transition-transform shadow-lg group"
             title="Clique para testar a leitura do QR Code">
-
             <QrcodeVue :value="valorQrCode" :size="80" level="M" render-as="svg" />
-
             <span class="absolute -bottom-6 right-0 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity">Clique para abrir</span>
         </div>
       </div>
@@ -224,9 +226,17 @@ const verPreviaPublica = () => {
             ABRIR LINK DO QR CODE
         </button>
 
-        <button @click="etapa = 'form'" class="hover:text-gray-700 cursor-pointer text-gray-500 underline text-sm text-center mt-2">
-            Editar /
-        </button>
+        <div class="flex flex-col items-center gap-2 mt-2">
+          <!-- Botão de Editar -->
+          <button @click="etapa = 'form'" class="hover:text-black cursor-pointer text-gray-600 underline text-sm">
+            Editar Informações
+          </button>
+
+          <!-- NOVO BOTÃO DE EXCLUIR -->
+          <button @click="excluirCartao" class="hover:text-red-700 cursor-pointer text-red-500 text-xs font-bold uppercase tracking-wide transition-colors">
+            Excluir Cartão
+          </button>
+        </div>
     </div>
   </main>
 </template>

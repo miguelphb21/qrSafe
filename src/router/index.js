@@ -5,12 +5,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home', // <--- ADICIONADO O NOME
+      name: 'home',
       component: () => import('@/views/HomePage.vue'),
     },
     {
       path: '/cadastro',
-      name: 'cadastro', // <--- ADICIONADO O NOME
+      name: 'cadastro',
       component: () => import('@/views/CadastroMain.vue'),
     },
     {
@@ -24,23 +24,22 @@ const router = createRouter({
       path: '/emergencia',
       name: 'emergencia',
       component: () => import("@/views/EmergenciaView.vue"),
-      // Se você usa meta fields para proteger rotas, marque esta como pública
       meta: { publico: true }
     },
 
     {
       path: '/sobre',
-      name: 'sobre', // <--- ADICIONADO O NOME
+      name: 'sobre',
       component: () => import('@/views/sobreMain.vue')
     },
     {
       path: '/cartao',
-      name: 'cartao', // <--- ADICIONADO O NOME
+      name: 'cartao', 
       component: () => import('@/views/CartaoView.vue')
     },
     {
       path: '/login',
-      name: 'login', // <--- ADICIONADO O NOME
+      name: 'login',
       component: () => import('@/views/LoginMain.vue')
     },
     {

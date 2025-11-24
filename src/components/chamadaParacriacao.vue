@@ -12,7 +12,7 @@
   </div>
 </template>
 
-<!--  -->
+
 <script setup>
   defineProps(["texto" , "titulo"])
 </script>
