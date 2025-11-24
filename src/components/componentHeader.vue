@@ -66,17 +66,16 @@ const fazerLogout = () => {
           <label for="my-drawer-5" aria-label="close sidebar" class="drawer-overlay"></label>
           <ul class="menu bg-white text-black min-h-full w-80 p-4 font-bold">
             <li class="mb-4">
-              <label for="my-drawer-5" aria-label="close sidebar" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</label>
+              <label for="my-drawer-5" aria-label="close sidebar" class="btn btn-sm btn-circle btn-ghost absolute right-0 top-[-10px]"><img src="../assets/images/x.svg" alt=""></label>
             </li>
 
-            <!-- ITENS MOBILE -->
             <template v-if="!usuarioLogado">
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/cadastro">Cadastro</RouterLink></li>
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/login">Login</RouterLink></li>
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/sobre">Sobre</RouterLink></li>
             </template>
 
-            <!-- Se ESTIVER logado -->
+
             <template v-else>
               <li @click="document.getElementById('my-drawer-5').checked = false"><RouterLink to="/cartao">Meu Cartão</RouterLink></li>
               <!-- AQUI MUDOU: Agora chama a função fazerLogout -->
@@ -85,12 +84,9 @@ const fazerLogout = () => {
           </ul>
         </div>
       </div>
-
-      <!-- MENU DESKTOP (Telas Grandes) -->
       <div class="navbar-end hidden md:flex">
         <ul class="menu menu-horizontal px-1 font-semibold text-sm">
 
-          <!-- Se NÃO estiver logado: Mostra tudo -->
           <template v-if="!usuarioLogado">
             <li v-if="mostrar" class="hover:text-gray-300 transition-colors"><RouterLink to="/cadastro">Cadastro</RouterLink></li>
             <li v-if="mostrar" class="hover:text-gray-300 transition-colors"><RouterLink to="/login">Login</RouterLink></li>
