@@ -40,6 +40,7 @@ const registroDeUsuario = () => {
 
   const request = window.indexedDB.open("QrSafeDB", 1);
 
+  // cria a entidade Users
   request.onupgradeneeded = async (event) => {
     const db = await event.target.result;
     if (!db.objectStoreNames.contains("users")) {

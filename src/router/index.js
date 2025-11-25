@@ -34,7 +34,7 @@ const router = createRouter({
     },
     {
       path: '/cartao',
-      name: 'cartao', 
+      name: 'cartao',
       component: () => import('@/views/CartaoView.vue')
     },
     {
@@ -45,7 +45,7 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('@/views/PaginaInicial.vue')
+      component: () => import('@/views/DashBoard.vue')
     }
   ],
 })

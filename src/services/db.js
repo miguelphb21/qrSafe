@@ -28,11 +28,12 @@ const openDB = () => {
   });
 };
 
-// --- SESSÃO ---
+
 
 export const salvarSessao = async (usuario) => {
   const db = await openDB();
   return new Promise((resolve, reject) => {
+    
     const transaction = db.transaction(["session"], "readwrite");
     const store = transaction.objectStore("session");
     const request = store.put({ id: "current", ...usuario });
